@@ -1,3 +1,4 @@
+import gleam/list
 import gleam/option.{None, Some}
 import gleam/string
 import gleeunit
@@ -90,4 +91,21 @@ pub fn at_prefix_test() {
   assert loom_string.has_key(sub, "rk") == True
 
   assert loom_string.keys(sub) == ["d", "ol", "rk"]
+}
+
+pub fn find_pattern_test() {
+  let trie =
+    loom.new()
+    |> loom_string.insert("bat", 1)
+    |> loom_string.insert("cat", 2)
+    |> loom_string.insert("bar", 3)
+    |> loom_string.insert("boat", 4)
+
+  assert loom_string.find_pattern(trie, "bat") == ["bat"]
+  assert loom_string.find_pattern(trie, "z..") == []
+  assert loom_string.find_pattern(trie, "b.t") == ["bat"]
+  assert loom_string.find_pattern(trie, ".at") |> list.sort(string.compare)
+    == ["bat", "cat"]
+  assert loom_string.find_pattern(trie, "ba.") |> list.sort(string.compare)
+    == ["bar", "bat"]
 }

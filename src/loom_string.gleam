@@ -1,7 +1,7 @@
 //// Provides trie wrapper implementation for string keys.
 
 import gleam/list
-import gleam/option.{type Option}
+import gleam/option.{type Option, None, Some}
 import gleam/string
 import loom.{type Trie}
 
@@ -111,4 +111,20 @@ pub fn at_prefix(
   prefix: String,
 ) -> Result(Trie(String, v), Nil) {
   loom.at_prefix(trie, string.to_graphemes(prefix))
+}
+
+/// Returns a list of all keys that match the given pattern.
+/// The pattern uses `.` as a wildcard to match any character at that position.
+/// See `loom.find_pattern` for implementation details.
+///
+pub fn find_pattern(trie: Trie(String, v), pattern: String) -> List(String) {
+  let pattern = {
+    use c <- list.map(string.to_graphemes(pattern))
+    case c {
+      "." -> None
+      _ -> Some(c)
+    }
+  }
+
+  loom.find_pattern(trie, pattern) |> list.map(string.concat)
 }

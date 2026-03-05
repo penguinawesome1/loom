@@ -248,9 +248,7 @@ fn map_values_loop(
 ) -> Result(Trie(k, a), Nil) {
   let children = {
     use acc, key, child <- dict.fold(trie.children, dict.new())
-    let key_acc = [key, ..key_acc]
-
-    case map_values_loop(child, key_acc, fun) {
+    case map_values_loop(child, [key, ..key_acc], fun) {
       Ok(child) -> acc |> dict.insert(key, child)
       Error(Nil) -> acc
     }
@@ -412,10 +410,70 @@ pub fn values(trie: Trie(k, v)) -> List(v) {
 /// // -> Error(Nil)
 /// ```
 /// 
-pub fn at_prefix(trie: Trie(k, v), prefix: List(k)) -> Result(Trie(k, v), Nil) {
+pub fn at_prefix(
+  in trie: Trie(k, v),
+  with prefix: List(k),
+) -> Result(Trie(k, v), Nil) {
   case prefix {
     [] -> Ok(trie)
     [first, ..rest] ->
       dict.get(trie.children, first) |> result.try(at_prefix(_, rest))
+  }
+}
+
+/// Returns a list of all keys that match the given pattern.
+/// Runs in O(n) time, where 'n' is the total number of nodes in the trie,
+/// though it is significantly faster for patterns with few wildcards.
+/// 
+/// The pattern uses `None` as a wildcard to match any character at that position.
+/// 
+/// ## Examples
+/// 
+/// ```gleam
+/// new()
+/// |> insert(["a", "b", "c"], 1)
+/// |> insert(["a", "x", "c"], 2)
+/// |> insert(["a", "b", "d"], 3)
+/// |> find_pattern([Some("a"), None, Some("c")])
+/// // -> [["a", "b", "c"], ["a", "x", "c"]]
+/// ```
+/// 
+/// ```gleam
+/// new()
+/// |> insert(string.to_graphemes("hello"), 0)
+/// |> find_pattern([Some("z"), None, None])
+/// // -> []
+/// ```
+///
+pub fn find_pattern(
+  in trie: Trie(k, v),
+  matching pattern: List(Option(k)),
+) -> List(List(k)) {
+  find_pattern_loop(trie, [], pattern)
+}
+
+fn find_pattern_loop(
+  trie: Trie(k, v),
+  key_acc: List(k),
+  pattern: List(Option(k)),
+) -> List(List(k)) {
+  case pattern {
+    [] ->
+      case trie.value {
+        Some(_) -> [list.reverse(key_acc)]
+        None -> []
+      }
+    [first, ..rest] ->
+      case first {
+        Some(key) ->
+          case dict.get(trie.children, key) {
+            Ok(child) -> find_pattern_loop(child, [key, ..key_acc], rest)
+            Error(Nil) -> []
+          }
+        None -> {
+          use acc, key, child <- dict.fold(trie.children, [])
+          find_pattern_loop(child, [key, ..key_acc], rest) |> list.append(acc)
+        }
+      }
   }
 }

@@ -264,3 +264,24 @@ pub fn at_prefix_test() {
   assert trie |> loom.get(["d"]) == Ok(2)
   assert trie |> loom.get(["a", "b"]) == Error(Nil)
 }
+
+pub fn find_pattern_test() {
+  let trie =
+    loom.new()
+    |> loom.insert(string.to_graphemes("bat"), 1)
+    |> loom.insert(string.to_graphemes("cat"), 2)
+    |> loom.insert(string.to_graphemes("bar"), 3)
+    |> loom.insert(string.to_graphemes("boat"), 4)
+
+  assert loom.find_pattern(trie, [Some("b"), Some("a"), Some("t")])
+    == [["b", "a", "t"]]
+
+  assert loom.find_pattern(trie, [None, Some("a"), Some("t")])
+    |> list.sort(fn(a, b) { string.compare(string.concat(a), string.concat(b)) })
+    == [["b", "a", "t"], ["c", "a", "t"]]
+
+  assert loom.find_pattern(trie, [Some("z"), None, None]) == []
+
+  assert loom.find_pattern(trie, [Some("b"), None, Some("t")])
+    == [["b", "a", "t"]]
+}
