@@ -28,11 +28,8 @@ pub fn main() {
       bench.Function("del  ", fn(keys) {
         list.fold(keys, trie, loom_string.delete) |> fn(_) { Nil }
       }),
-      bench.Function("pre_h", fn(_) {
-        loom_string.at_prefix(trie, "s") |> fn(_) { Nil }
-      }),
-      bench.Function("pre_m", fn(_) {
-        loom_string.at_prefix(trie, "xyz") |> fn(_) { Nil }
+      bench.Function("pre  ", fn(keys) {
+        list.each(keys, loom_string.at_prefix(trie, _))
       }),
     ],
     [bench.Duration(1000), bench.Warmup(100)],
