@@ -5,7 +5,7 @@ import gleam/result
 
 /// Data structure optimized for efficient reTRIEval.
 /// This implementation provides O(m) time complexity for insertion and search operations,
-/// where 'm' is the length of the string.
+/// where 'm' is the length of the key.
 /// It is particularly useful for autocomplete systems, spell checkers, and IP routing.
 /// 
 /// ## Examples
