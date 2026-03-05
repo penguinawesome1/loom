@@ -1,0 +1,114 @@
+//// Provides trie wrapper implementation for string keys.
+
+import gleam/list
+import gleam/option.{type Option}
+import gleam/string
+import loom.{type Trie}
+
+/// Checks if a string key exists within the trie.
+/// See `loom.has_key` for implementation details.
+/// 
+pub fn has_key(trie: Trie(String, v), key: String) -> Bool {
+  loom.has_key(trie, string.to_graphemes(key))
+}
+
+/// Inserts a value at the specified string key, returning a new trie.
+/// See `loom.insert` for implementation details.
+/// 
+pub fn insert(
+  into trie: Trie(String, v),
+  for key: String,
+  insert value: v,
+) -> Trie(String, v) {
+  loom.insert(trie, string.to_graphemes(key), value)
+}
+
+/// Fetches the value associated with a string key.
+/// See `loom.get` for implementation details.
+/// 
+pub fn get(from trie: Trie(String, v), get key: String) -> Result(v, Nil) {
+  loom.get(trie, string.to_graphemes(key))
+}
+
+/// Updates a string key's value or inserts a new one using a callback.
+/// See `loom.upsert` for implementation details.
+/// 
+pub fn upsert(
+  from trie: Trie(String, v),
+  update key: String,
+  using fun: fn(Option(v)) -> Option(v),
+) -> Trie(String, v) {
+  loom.upsert(trie, string.to_graphemes(key), fun)
+}
+
+/// Removes a string key and any orphaned nodes from the trie.
+/// See `loom.delete` for implementation details.
+/// 
+pub fn delete(from trie: Trie(String, v), delete key: String) -> Trie(String, v) {
+  loom.delete(trie, string.to_graphemes(key))
+}
+
+/// Transforms all values in the trie using the provided string-aware function.
+/// See `loom.map_values` for implementation details.
+/// 
+pub fn map_values(
+  in trie: Trie(String, v),
+  with fun: fn(String, v) -> Option(a),
+) -> Trie(String, a) {
+  loom.map_values(trie, fn(key, value) { fun(string.concat(key), value) })
+}
+
+/// Reduces the trie into a single value using a string-aware accumulator.
+/// See `loom.fold` for implementation details.
+/// 
+pub fn fold(
+  over trie: Trie(String, v),
+  from initial: acc,
+  with fun: fn(acc, String, v) -> acc,
+) -> acc {
+  loom.fold(trie, initial, fn(acc, key, value) {
+    fun(acc, string.concat(key), value)
+  })
+}
+
+/// Returns a new trie containing only entries that satisfy the string predicate.
+/// See `loom.filter` for implementation details.
+/// 
+pub fn filter(
+  in trie: Trie(String, v),
+  keeping predicate: fn(String, v) -> Bool,
+) -> Trie(String, v) {
+  loom.filter(trie, fn(key, value) { predicate(string.concat(key), value) })
+}
+
+/// Converts the trie into an alphabetically sorted list of string-value pairs.
+/// Internally uses `fold` and `list.reverse`.
+/// 
+pub fn to_list(trie: Trie(String, v)) -> List(#(String, v)) {
+  fold(trie, [], fn(acc, key, value) { [#(key, value), ..acc] }) |> list.reverse
+}
+
+/// Creates a trie from a list of string keys, all sharing the same value.
+/// See `loom.insert` for details on how keys are stored.
+/// 
+pub fn from_list(list: List(#(String, v))) -> Trie(String, v) {
+  use acc, #(key, value) <- list.fold(list, loom.new())
+  acc |> insert(key, value)
+}
+
+/// Returns an alphabetically sorted list of all string keys in the trie.
+/// Internally uses `fold` and `list.reverse`.
+/// 
+pub fn keys(trie: Trie(String, v)) -> List(String) {
+  fold(trie, [], fn(acc, key, _value) { [key, ..acc] }) |> list.reverse
+}
+
+/// Returns the sub-trie located at the specified string prefix.
+/// See `loom.at_prefix` for implementation details.
+/// 
+pub fn at_prefix(
+  trie: Trie(String, v),
+  prefix: String,
+) -> Result(Trie(String, v), Nil) {
+  loom.at_prefix(trie, string.to_graphemes(prefix))
+}

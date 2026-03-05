@@ -328,7 +328,10 @@ fn fold_loop(
 /// // -> from_list(#(string.to_graphemes("I"), 5), #(string.to_graphemes("cats!"), 0))
 /// ```
 ///
-pub fn filter(in trie: Trie(k, v), keeping predicate: fn(List(k), v) -> Bool) {
+pub fn filter(
+  in trie: Trie(k, v),
+  keeping predicate: fn(List(k), v) -> Bool,
+) -> Trie(k, v) {
   use key, value <- map_values(trie)
 
   case predicate(key, value) {
