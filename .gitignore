@@ -4,3 +4,4 @@ build/
 erl_crash.dump
 .lustre
 demo/.lustre
+dist/
