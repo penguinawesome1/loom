@@ -26,6 +26,12 @@ jobs:
         working-directory: ./demo
         run: |
           gleam run -m lustre/dev build --minify
+          cp ./dist/demo.js ./priv/static/demo.js
+
+      - name: Build Demo
+        working-directory: ./demo
+        run: |
+          gleam run -m lustre/dev build --minify
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
