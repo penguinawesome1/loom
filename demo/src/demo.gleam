@@ -25,12 +25,7 @@ type Model {
 
 fn get_dictionary() -> Effect(Msg) {
   effect.from(fn(dispatch) {
-    // Instead of request.to, let's build it manually 
-    // to ensure there's no Result to 'assert' on.
-    let req =
-      request.new()
-      |> request.set_host("")
-      |> request.set_path("dictionary.txt")
+    let assert Ok(req) = request.to("dictionary.txt")
 
     fetch.send(req)
     |> promise.await(fn(res) {
