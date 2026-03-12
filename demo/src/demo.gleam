@@ -25,12 +25,9 @@ type Model {
 
 fn get_dictionary() -> Effect(Msg) {
   effect.from(fn(dispatch) {
-    let req =
-      request.new()
-      |> request.set_host("")
-      |> request.set_path("dictionary.txt")
-
-    fetch.send(req)
+    request.new()
+    |> request.set_path("/loom/dictionary.txt")
+    |> fetch.send
     |> promise.await(fn(res) {
       case res {
         Ok(resp) -> fetch.read_text_body(resp)
@@ -43,6 +40,7 @@ fn get_dictionary() -> Effect(Msg) {
         Error(_) -> dispatch(ApiReturnedDictionary(Error(Nil)))
       }
     })
+
     Nil
   })
 }
