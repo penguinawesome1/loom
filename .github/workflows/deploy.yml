@@ -19,7 +19,7 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           otp-version: "27.0"
-          gleam-version: "1.4.1"
+          gleam-version: "1.14.1"
 
       - name: Build Demo
         working-directory: ./demo
