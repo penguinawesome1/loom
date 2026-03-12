@@ -30,7 +30,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./demo/dist/
+          path: ./demo/priv/static/
 
   deploy:
     needs: build
