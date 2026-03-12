@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 permissions:
   contents: read
@@ -19,7 +19,8 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           otp-version: "27.0"
-          gleam-version: "1.4.1"
+          gleam-version: "1.14.0"
+          rebar3-version: "3.24.0"
 
       - name: Build Demo
         working-directory: ./demo
