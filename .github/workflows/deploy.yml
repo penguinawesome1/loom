@@ -22,21 +22,18 @@ jobs:
           gleam-version: "1.14.0"
           rebar3-version: "3.24.0"
 
-      - name: Build Demo
+      - name: Build Project
         working-directory: ./demo
         run: |
+          gleam deps download
           gleam run -m lustre/dev build --minify
-          cp ./dist/demo.js ./priv/static/demo.js
-
-      - name: Build Demo
-        working-directory: ./demo
-        run: |
-          gleam run -m lustre/dev build --minify
+          mkdir -p dist
+          cp -r priv/static/. dist/
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./demo/priv/static/
+          path: ./demo/dist/
 
   deploy:
     needs: build
