@@ -1,4 +1,5 @@
 import gleam/fetch
+import gleam/http
 import gleam/http/request
 import gleam/javascript/promise
 import gleam/list
@@ -26,6 +27,8 @@ type Model {
 fn get_dictionary() -> Effect(Msg) {
   effect.from(fn(dispatch) {
     request.new()
+    |> request.set_scheme(http.Https)
+    |> request.set_host("penguinawesome1.github.io")
     |> request.set_path("/loom/dictionary.txt")
     |> fetch.send
     |> promise.await(fn(res) {
