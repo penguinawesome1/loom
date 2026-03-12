@@ -533,21 +533,20 @@ fn fuzzy_search_loop(
   }
 
   use acc, key, child <- dict.fold(trie.children, found_acc)
+  let key_acc = [key, ..key_acc]
 
   // key inserts
-  let acc =
-    fuzzy_search_loop(child, [key, ..key_acc], acc, pattern, deviation - 1)
+  let acc = fuzzy_search_loop(child, key_acc, acc, pattern, deviation - 1)
 
   case pattern {
     // key matches
     [first, ..rest] if key == first ->
-      fuzzy_search_loop(child, [key, ..key_acc], acc, rest, deviation)
+      fuzzy_search_loop(child, key_acc, acc, rest, deviation)
 
     // key swaps
-    [_, ..rest] ->
-      fuzzy_search_loop(child, [key, ..key_acc], acc, rest, deviation - 1)
+    [_, ..rest] -> fuzzy_search_loop(child, key_acc, acc, rest, deviation - 1)
 
     // extended patterns
-    [] -> fuzzy_search_loop(child, [key, ..key_acc], acc, [], deviation - 1)
+    [] -> fuzzy_search_loop(child, key_acc, acc, [], deviation - 1)
   }
 }
