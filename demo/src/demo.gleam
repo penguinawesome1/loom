@@ -25,7 +25,10 @@ type Model {
 
 fn get_dictionary() -> Effect(Msg) {
   effect.from(fn(dispatch) {
-    let assert Ok(req) = request.to("dictionary.txt")
+    let req =
+      request.new()
+      |> request.set_host("")
+      |> request.set_path("dictionary.txt")
 
     fetch.send(req)
     |> promise.await(fn(res) {
@@ -36,7 +39,6 @@ fn get_dictionary() -> Effect(Msg) {
     })
     |> promise.map(fn(res) {
       case res {
-        // We handle BOTH success and failure cases here
         Ok(resp) -> dispatch(ApiReturnedDictionary(Ok(resp.body)))
         Error(_) -> dispatch(ApiReturnedDictionary(Error(Nil)))
       }
