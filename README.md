@@ -1,6 +1,6 @@
 # loom
 
-[![Deploy Status](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml)
+[![Deploy Status](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml)
 
 ### Initialization
 
