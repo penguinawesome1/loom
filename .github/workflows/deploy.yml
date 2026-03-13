@@ -26,7 +26,7 @@ jobs:
         working-directory: ./demo
         run: |
           gleam deps download
-          gleam run -m lustre/dev build --minify
+          gleam run -m lustre/dev build --minify --base-path /loom/
           touch dist/.nojekyll
 
       - name: Upload Artifact
