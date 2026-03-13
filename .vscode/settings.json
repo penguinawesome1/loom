@@ -1,0 +1,5 @@
+{
+    "[gleam]": {
+        "editor.defaultFormatter": "gleam.gleam"
+    }
+}

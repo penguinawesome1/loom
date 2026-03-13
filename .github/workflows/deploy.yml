@@ -27,8 +27,6 @@ jobs:
         run: |
           gleam deps download
           gleam run -m lustre/dev build --minify
-          mkdir -p dist
-          cp -r priv/static/. dist/
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
