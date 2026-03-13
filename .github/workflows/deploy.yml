@@ -27,6 +27,7 @@ jobs:
         run: |
           gleam deps download
           gleam run -m lustre/dev build --minify
+          touch dist/.nojekyll
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
