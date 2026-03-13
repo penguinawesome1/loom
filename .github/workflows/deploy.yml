@@ -27,22 +27,25 @@ jobs:
         run: |
           gleam deps download
 
-          # 1. Build without the proctor (silences the WebSocket errors)
-          # We still use --base-path /loom/ so internal links work
+          # 1. Build the project
           gleam run -m lustre/dev build --minify --outdir dist --base-path /loom/ --detect-proctor false
 
-          # 2. Safety check: ensure dist exists
+          # 2. Force create the dist folder
           mkdir -p dist
 
-          # 3. Flatten the JS: Lustre often puts it in dist/js/
-          # We move it to the root of dist so index.html can see it
-          find dist -name "*.js" -exec cp {} dist/demo.js \;
+          # 3. Find the compiled JS and move it to dist/demo.js
+          # Lustre usually builds into demo/build/ or demo/priv/static/
+          find . -name "*.js" -not -path "./dist/*" -exec cp {} dist/demo.js \;
 
-          # 4. Copy your custom HTML and assets to the root of dist
+          # 4. Copy your HTML from the demo root
           cp index.html dist/index.html
-          cp favicon.ico dist/favicon.ico || true
 
-          # 5. DEBUG: Verify the structure in the logs
+          # 5. Copy assets from the assets/ folder
+          # Based on your image, these are in demo/assets/
+          cp assets/favicon.ico dist/favicon.ico || echo "Favicon not found in assets/"
+          cp assets/dictionary.txt dist/dictionary.txt || echo "Dictionary not found in assets/"
+
+          # 6. Debug: Check the final structure
           echo "Deployment Structure:"
           ls -R dist/
 
