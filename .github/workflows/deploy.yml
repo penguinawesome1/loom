@@ -27,9 +27,9 @@ jobs:
         run: |
           gleam deps download
           gleam run -m lustre/dev build --minify --base-path /loom/
-          mkdir -p dist
+          cp priv/index.html dist/index.html
+          if [ -d "priv/static" ]; then cp -r priv/static/* dist/; fi
           touch dist/.nojekyll
-
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
