@@ -38,6 +38,7 @@ packages = [
   { name = "mist", version = "5.0.4", build_tools = ["gleam"], requirements = ["exception", "gleam_erlang", "gleam_http", "gleam_otp", "gleam_stdlib", "gleam_yielder", "glisten", "gramps", "hpack_erl", "logging"], otp_app = "mist", source = "hex", outer_checksum = "7CED4B2D81FD547ADB093D97B9928B9419A7F58B8562A30A6CC17A252B31AD05" },
   { name = "platform", version = "1.0.0", build_tools = ["gleam"], requirements = [], otp_app = "platform", source = "hex", outer_checksum = "8339420A95AD89AAC0F82F4C3DB8DD401041742D6C3F46132A8739F6AEB75391" },
   { name = "polly", version = "3.1.0", build_tools = ["gleam"], requirements = ["filepath", "gleam_erlang", "gleam_otp", "gleam_stdlib", "simplifile"], otp_app = "polly", source = "hex", outer_checksum = "51FB565D81FF6212FDF3306D44419601F2A7C4EDD1F00FC9DA5C376A00AED4FE" },
+  { name = "rsvp", version = "1.2.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_fetch", "gleam_http", "gleam_httpc", "gleam_javascript", "gleam_json", "gleam_stdlib", "lustre"], otp_app = "rsvp", source = "hex", outer_checksum = "40F9E0E662FF258E10C7041A9591261FE802D56625FB444B91510969644F7722" },
   { name = "simplifile", version = "2.4.0", build_tools = ["gleam"], requirements = ["filepath", "gleam_stdlib"], otp_app = "simplifile", source = "hex", outer_checksum = "7C18AFA4FED0B4CE1FA5B0B4BAC1FA1744427054EA993565F6F3F82E5453170D" },
   { name = "snag", version = "1.2.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "snag", source = "hex", outer_checksum = "274F41D6C3ECF99F7686FDCE54183333E41D2C1CA5A3A673F9A8B2C7A4401077" },
   { name = "telemetry", version = "1.4.1", build_tools = ["rebar3"], requirements = [], otp_app = "telemetry", source = "hex", outer_checksum = "2172E05A27531D3D31DD9782841065C50DD5C3C7699D95266B2EDD54C2DAFA1C" },
@@ -54,3 +55,4 @@ gleeunit = { version = ">= 1.0.0 and < 2.0.0" }
 loom = { path = "../" }
 lustre = { version = ">= 5.6.0 and < 6.0.0" }
 lustre_dev_tools = { version = ">= 2.3.5 and < 3.0.0" }
+rsvp = { version = ">= 1.2.0 and < 2.0.0" }

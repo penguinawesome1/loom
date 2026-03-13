@@ -1,9 +1,4 @@
-import gleam/bool
-import gleam/fetch
-import gleam/http
-import gleam/http/request
 import gleam/int
-import gleam/javascript/promise
 import gleam/list
 import gleam/string
 import loom.{type Trie}
@@ -14,6 +9,7 @@ import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
+import rsvp
 
 pub fn main() {
   let app = lustre.application(init, update, view)
@@ -27,27 +23,8 @@ type Model {
 }
 
 fn get_dictionary() -> Effect(Msg) {
-  effect.from(fn(dispatch) {
-    request.new()
-    |> request.set_scheme(http.Https)
-    |> request.set_host("penguinawesome1.github.io")
-    |> request.set_path("/loom/dictionary.txt")
-    |> fetch.send
-    |> promise.await(fn(res) {
-      case res {
-        Ok(resp) -> fetch.read_text_body(resp)
-        Error(e) -> promise.resolve(Error(e))
-      }
-    })
-    |> promise.map(fn(res) {
-      case res {
-        Ok(resp) -> dispatch(ApiReturnedDictionary(Ok(resp.body)))
-        Error(_) -> dispatch(ApiReturnedDictionary(Error(Nil)))
-      }
-    })
-
-    Nil
-  })
+  let url = "./dictionary.txt"
+  rsvp.get(url, rsvp.expect_text(ApiReturnedDictionary))
 }
 
 fn init(_args) -> #(Model, Effect(Msg)) {
@@ -55,7 +32,7 @@ fn init(_args) -> #(Model, Effect(Msg)) {
 }
 
 type Msg {
-  ApiReturnedDictionary(Result(String, Nil))
+  ApiReturnedDictionary(Result(String, rsvp.Error))
   UpdateName(String)
   IncrementDeviation
   DecrementDeviation
@@ -92,8 +69,6 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
 }
 
 fn update_output(model: Model) -> Model {
-  use <- bool.guard(string.is_empty(model.text), Model(..model, output: ""))
-
   let output =
     model.trie
     |> loom_string.fuzzy_search(string.uppercase(model.text), model.deviation)

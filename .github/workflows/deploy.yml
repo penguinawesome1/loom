@@ -26,11 +26,7 @@ jobs:
         working-directory: ./demo
         run: |
           gleam deps download
-          gleam run -m lustre/dev build --minify --outdir dist
-          mkdir -p dist
-          cp priv/index.html dist/index.html
-          if [ -d "priv/static" ]; then cp -r priv/static/* dist/; fi
-          mv dist/*.mjs dist/demo.js || mv dist/*.js dist/demo.js || true
+          gleam run -m lustre/dev build --minify --outdir dist --base-path /loom/
           touch dist/.nojekyll
 
       - name: Upload Artifact
