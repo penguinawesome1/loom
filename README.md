@@ -2,6 +2,8 @@
 
 [![Deploy Status](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml)
 
+![Strawberry Search](./demo/assets/examples/strawberry_search.png)
+
 ### Initialization
 
 | Operation      | Dataset       | Min Time      | Iterations/sec |
