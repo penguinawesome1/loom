@@ -28,7 +28,7 @@ jobs:
           gleam deps download
           gleam run -m lustre/dev deploy --minify --base-path /loom/
           mkdir -p dist
-          find . -name "*.js" -not -path "./dist/*" -exec cp {} dist/demo.js \;
+          cp priv/static/*.js dist/demo.js || find . -name "*.js" -not -path "./dist/*" -exec cp {} dist/demo.js \;
           cp index.html dist/index.html
           cp assets/favicon.ico dist/favicon.ico || true
           cp assets/dictionary.txt dist/dictionary.txt || true
