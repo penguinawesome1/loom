@@ -27,9 +27,11 @@ jobs:
         run: |
           gleam deps download
           gleam run -m lustre/dev build --minify --outdir dist --base-path /loom/
-          sleep 1
-          mkdir -p dist
+          find dist -name "*.js" -exec cp {} dist/demo.js \;
           cp index.html dist/index.html
+          cp favicon.ico dist/favicon.ico || true
+          echo "Current deployment directory structure:"
+          ls -R dist/
           touch dist/.nojekyll
 
       - name: Upload Artifact
