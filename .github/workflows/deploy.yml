@@ -26,22 +26,24 @@ jobs:
         working-directory: ./demo
         run: |
           gleam deps download
-          # 1. Run the build (Lustre usually outputs to priv/static)
-          gleam run -m lustre/dev build --minify --base-path /loom/
 
-          # 2. Create our own dist folder
+          # 1. Build without the proctor (silences the WebSocket errors)
+          # We still use --base-path /loom/ so internal links work
+          gleam run -m lustre/dev build --minify --outdir dist --base-path /loom/ --detect-proctor false
+
+          # 2. Safety check: ensure dist exists
           mkdir -p dist
 
-          # 3. Find the JS file in the actual Lustre output folder and move it to dist
-          # Lustre puts the bundle in priv/static/
-          cp priv/static/*.js dist/demo.js || find . -name "*.js" -exec cp {} dist/demo.js \;
+          # 3. Flatten the JS: Lustre often puts it in dist/js/
+          # We move it to the root of dist so index.html can see it
+          find dist -name "*.js" -exec cp {} dist/demo.js \;
 
-          # 4. Copy your custom HTML and assets into dist
+          # 4. Copy your custom HTML and assets to the root of dist
           cp index.html dist/index.html
           cp favicon.ico dist/favicon.ico || true
 
-          # 5. Final check to prove it worked in the logs
-          echo "Files inside the dist folder to be deployed:"
+          # 5. DEBUG: Verify the structure in the logs
+          echo "Deployment Structure:"
           ls -R dist/
 
           touch dist/.nojekyll
