@@ -26,29 +26,12 @@ jobs:
         working-directory: ./demo
         run: |
           gleam deps download
-
-          # 1. Build the project
-          gleam run -m lustre/dev build --minify --outdir dist --base-path /loom/ --detect-proctor false
-
-          # 2. Force create the dist folder
+          gleam run -m lustre/dev deploy --minify --base-path /loom/
           mkdir -p dist
-
-          # 3. Find the compiled JS and move it to dist/demo.js
-          # Lustre usually builds into demo/build/ or demo/priv/static/
           find . -name "*.js" -not -path "./dist/*" -exec cp {} dist/demo.js \;
-
-          # 4. Copy your HTML from the demo root
           cp index.html dist/index.html
-
-          # 5. Copy assets from the assets/ folder
-          # Based on your image, these are in demo/assets/
-          cp assets/favicon.ico dist/favicon.ico || echo "Favicon not found in assets/"
-          cp assets/dictionary.txt dist/dictionary.txt || echo "Dictionary not found in assets/"
-
-          # 6. Debug: Check the final structure
-          echo "Deployment Structure:"
-          ls -R dist/
-
+          cp assets/favicon.ico dist/favicon.ico || true
+          cp assets/dictionary.txt dist/dictionary.txt || true
           touch dist/.nojekyll
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
