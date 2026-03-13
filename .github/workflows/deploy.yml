@@ -30,7 +30,9 @@ jobs:
           mkdir -p dist
           cp priv/index.html dist/index.html
           if [ -d "priv/static" ]; then cp -r priv/static/* dist/; fi
+          find build/dev/javascript/lustre_bin -name "*.mjs" -exec cp {} dist/demo.js \;
           touch dist/.nojekyll
+
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
