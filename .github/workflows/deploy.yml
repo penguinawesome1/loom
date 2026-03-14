@@ -26,8 +26,9 @@ jobs:
         working-directory: ./demo
         run: |
           gleam deps download
-          mkdir -p dist
           gleam run -m lustre/dev build --minify
+          cp index.html dist/index.html
+          cp assets/favicon.ico dist/favicon.ico || true
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
