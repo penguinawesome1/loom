@@ -69,9 +69,14 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
 }
 
 fn update_output(model: Model) -> Model {
+  let search_text = string.uppercase(model.text)
+
   let output =
-    model.trie
-    |> loom_string.fuzzy_search(string.uppercase(model.text), model.deviation)
+    case string.contains(search_text, "*") {
+      True -> loom_string.find_pattern(model.trie, search_text)
+      False ->
+        loom_string.fuzzy_search(model.trie, search_text, model.deviation)
+    }
     |> list.map(fn(pair) { pair.0 })
     |> string.join("\n")
 
