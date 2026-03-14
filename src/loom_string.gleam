@@ -114,7 +114,7 @@ pub fn at_prefix(
 }
 
 /// Returns a list of all keys that match the given pattern.
-/// The pattern uses `.` as a wildcard to match any character at that position.
+/// The pattern uses `.` or `*` as a wildcard to match any character at that position.
 /// See `loom.find_pattern` for implementation details.
 ///
 pub fn find_pattern(
@@ -124,7 +124,7 @@ pub fn find_pattern(
   let pattern = {
     use c <- list.map(string.to_graphemes(pattern))
     case c {
-      "." -> None
+      "." | "*" -> None
       _ -> Some(c)
     }
   }

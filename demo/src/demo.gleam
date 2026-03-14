@@ -70,9 +70,13 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
 
 fn update_output(model: Model) -> Model {
   let search_text = string.uppercase(model.text)
+  let has_wildcard =
+    search_text
+    |> string.to_graphemes
+    |> list.any(fn(c) { c == "." || c == "*" })
 
   let output =
-    case string.contains(search_text, "*") {
+    case has_wildcard {
       True -> loom_string.find_pattern(model.trie, search_text)
       False ->
         loom_string.fuzzy_search(model.trie, search_text, model.deviation)
