@@ -27,7 +27,7 @@ jobs:
         run: |
           gleam deps download
           gleam run -m lustre/dev build --minify --base-path /loom/ --outdir dist
-          cp index.html demo/index.html
+          cp index.html dist/index.html
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
