@@ -26,6 +26,7 @@ jobs:
         working-directory: ./demo
         run: |
           gleam deps download
+          mkdir -p dist
           gleam run -m lustre/dev build --minify --base-path /loom/ --outdir dist
           cp index.html dist/index.html
 
