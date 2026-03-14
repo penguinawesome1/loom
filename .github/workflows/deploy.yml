@@ -25,15 +25,8 @@ jobs:
       - name: Build Project
         working-directory: ./demo
         run: |
-          rm -rf build
           gleam deps download
           gleam run -m lustre/dev deploy --minify --base-path /loom/
-          mkdir -p dist
-          cp priv/static/*.js dist/demo.js
-          cp index.html dist/index.html
-          cp assets/favicon.ico dist/favicon.ico || true
-          cp assets/dictionary.txt dist/dictionary.txt || true
-          touch dist/.nojekyll
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:

@@ -23,7 +23,7 @@ type Model {
 }
 
 fn get_dictionary() -> Effect(Msg) {
-  let url = "./loom/dictionary.txt"
+  let url = "./dist/dictionary.txt"
   rsvp.get(url, rsvp.expect_text(ApiReturnedDictionary))
 }
 
