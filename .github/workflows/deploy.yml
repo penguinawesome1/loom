@@ -26,7 +26,8 @@ jobs:
         working-directory: ./demo
         run: |
           gleam deps download
-          gleam run -m lustre/dev deploy --minify
+          gleam run -m lustre/dev build --minify
+
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
