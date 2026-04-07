@@ -1,5 +1,6 @@
 import gleam/list
 import gleam/option.{None, Some}
+import gleam/result
 import gleam/string
 import gleeunit
 import loom
@@ -110,6 +111,32 @@ pub fn find_pattern_test() {
   assert loom_string.find_pattern(trie, "ba.")
     |> list.sort(fn(a, b) { string.compare(a.0, b.0) })
     == [#("bar", 3), #("bat", 1)]
+}
+
+pub fn find_pattern_where_test() {
+  let trie =
+    loom.new()
+    |> loom_string.insert("bat", 1)
+    |> loom_string.insert("cat", 2)
+    |> loom_string.insert("bar", 3)
+    |> loom_string.insert("boat", 4)
+
+  assert loom_string.find_pattern_where(trie, ".at", fn(_key, val) { val > 1 })
+    == [#("cat", 2)]
+
+  assert loom_string.find_pattern_where(trie, "ba.", fn(key, _val) {
+      list.first(key) |> result.unwrap("") == "r"
+    })
+    == [#("bar", 3)]
+
+  assert loom_string.find_pattern_where(trie, "...", fn(_key, val) { val > 10 })
+    == []
+
+  let results =
+    loom_string.find_pattern_where(trie, ".at", fn(_, _) { True })
+    |> list.sort(fn(a, b) { string.compare(a.0, b.0) })
+
+  assert results == [#("bat", 1), #("cat", 2)]
 }
 
 pub fn fuzzy_search_test() {

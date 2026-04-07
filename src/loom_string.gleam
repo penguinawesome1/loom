@@ -121,6 +121,24 @@ pub fn find_pattern(
   trie: Trie(String, v),
   pattern: String,
 ) -> List(#(String, v)) {
+  find_pattern_where(trie, pattern, fn(_, _) { True })
+}
+
+/// Returns a list of all keys and values that match the given pattern and satisfy a predicate.
+/// 
+/// The pattern uses `.` or `*` as a wildcard to match any single character at that position.
+/// 
+/// The predicate receives the key as a `List(String)` (graphemes) and the associated value.
+/// The key list is provided in REVERSE order. This allows for efficient O(1) checking of the
+/// most recently matched character using `list.first`.
+/// 
+/// See `loom.find_pattern_where` for complexity and implementation details.
+///
+pub fn find_pattern_where(
+  trie: Trie(String, v),
+  pattern: String,
+  predicate: fn(List(String), v) -> Bool,
+) -> List(#(String, v)) {
   let pattern = {
     use c <- list.map(string.to_graphemes(pattern))
     case c {
@@ -129,7 +147,7 @@ pub fn find_pattern(
     }
   }
 
-  use pair <- list.map(loom.find_pattern(trie, pattern))
+  use pair <- list.map(loom.find_pattern_where(trie, pattern, predicate))
   #(string.concat(pair.0), pair.1)
 }
 

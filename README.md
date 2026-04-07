@@ -1,6 +1,8 @@
 # loom
 
 [![Deploy Status](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml)
+[![Test Status](https://github.com/penguinawesome1/loom/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/penguinawesome1/loom/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ![Strawberry Search](./demo/assets/examples/strawberry_search.png)
 
@@ -8,10 +10,10 @@ A flexible and optimized Trie implementation for the Gleam programming language.
 
 ## ✨ Features
 
-+ Generic Core: Full support for custom key and value types, allowing the Trie to store anything from strings to game move sequences.
-+ String Wrapper: Includes a dedicated module for easy out-of-the-box use with standard strings.
-+ Fuzzy Search: Efficiently find matches with a specified allowed deviation (Levenshtein distance).
-+ Pattern Matching: Advanced sequence matching capabilities, including wildcard support.
+- Generic Core: Full support for custom key and value types, allowing the Trie to store anything from strings to game move sequences.
+- String Wrapper: Includes a dedicated module for easy out-of-the-box use with standard strings.
+- Fuzzy Search: Efficiently find matches with a specified allowed deviation (Levenshtein distance).
+- Pattern Matching: Advanced sequence matching capabilities, including wildcard support.
 
 ## Initialization
 
@@ -54,6 +56,7 @@ pub fn main() {
 ## 📦 Installation
 
 Add this to your `gleam.toml`:
+
 ```toml
 [dependencies]
 loom = { git = "https://github.com/penguinawesome1/loom.git", tag = "v0.1.0" }

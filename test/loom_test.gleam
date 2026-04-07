@@ -288,6 +288,44 @@ pub fn find_pattern_test() {
     == [#(["b", "a", "t"], 1)]
 }
 
+pub fn find_pattern_where_test() {
+  let trie =
+    loom.new()
+    |> loom.insert(["a", "p", "p", "l", "e"], 10)
+    |> loom.insert(["a", "p", "p", "l", "y"], 20)
+    |> loom.insert(["a", "d", "o", "p", "t"], 30)
+    |> loom.insert(["b", "a", "n", "a", "n", "a"], 40)
+
+  let pattern = [Some("a"), None, None, Some("l"), None]
+
+  assert loom.find_pattern_where(trie, pattern, fn(_key, val) { val > 15 })
+    == [#(["a", "p", "p", "l", "y"], 20)]
+
+  let pattern_two = [Some("a"), None, None, None, Some("t")]
+
+  assert loom.find_pattern_where(trie, pattern_two, fn(key, _val) {
+      list.contains(key, "o")
+    })
+    == [#(["a", "d", "o", "p", "t"], 30)]
+
+  let pattern_three = [Some("a"), None, None, None, None]
+
+  assert loom.find_pattern_where(trie, pattern_three, fn(_key, _val) { True })
+    |> list.sort(fn(a, b) {
+      string.compare(string.concat(a.0), string.concat(b.0))
+    })
+    == [
+      #(["a", "d", "o", "p", "t"], 30),
+      #(["a", "p", "p", "l", "e"], 10),
+      #(["a", "p", "p", "l", "y"], 20),
+    ]
+
+  assert loom.find_pattern_where(trie, pattern_three, fn(_key, val) {
+      val > 100
+    })
+    == []
+}
+
 pub fn fuzzy_search_test() {
   let trie =
     loom.new()

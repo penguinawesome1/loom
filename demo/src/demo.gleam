@@ -19,7 +19,15 @@ pub fn main() {
 }
 
 type Model {
-  Model(trie: Trie(String, Nil), text: String, deviation: Int, output: String)
+  Model(
+    trie: Trie(String, Nil),
+    text: String,
+    deviation: Int,
+    output: String,
+    show_filters: Bool,
+    required: String,
+    excluded: String,
+  )
 }
 
 fn get_dictionary() -> Effect(Msg) {
@@ -28,7 +36,7 @@ fn get_dictionary() -> Effect(Msg) {
 }
 
 fn init(_args) -> #(Model, Effect(Msg)) {
-  #(Model(loom.new(), "", 0, ""), get_dictionary())
+  #(Model(loom.new(), "", 0, "", False, "", ""), get_dictionary())
 }
 
 type Msg {
@@ -36,6 +44,9 @@ type Msg {
   UpdateName(String)
   IncrementDeviation
   DecrementDeviation
+  ToggleFilters(Bool)
+  UpdateRequiredLetters(String)
+  UpdateExcludedLetters(String)
 }
 
 fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
@@ -65,6 +76,19 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       let model = Model(..model, text: s) |> update_output
       #(model, effect.none())
     }
+    ToggleFilters(is_active) -> {
+      let model =
+        Model(..model, show_filters: is_active, required: "", excluded: "")
+      #(model, effect.none())
+    }
+    UpdateRequiredLetters(letters) -> {
+      let model = Model(..model, required: letters) |> update_output
+      #(model, effect.none())
+    }
+    UpdateExcludedLetters(letters) -> {
+      let model = Model(..model, excluded: letters) |> update_output
+      #(model, effect.none())
+    }
   }
 }
 
@@ -77,7 +101,20 @@ fn update_output(model: Model) -> Model {
 
   let output =
     case has_wildcard {
-      True -> loom_string.find_pattern(model.trie, search_text)
+      True ->
+        loom_string.find_pattern_where(model.trie, search_text, fn(letters, _) {
+          let word = string.concat(letters) |> string.uppercase
+
+          let has_excluded =
+            string.to_graphemes(model.excluded)
+            |> list.any(fn(l) { string.contains(word, string.uppercase(l)) })
+
+          let has_all_required =
+            string.to_graphemes(model.required)
+            |> list.all(fn(l) { string.contains(word, string.uppercase(l)) })
+
+          !has_excluded && has_all_required
+        })
       False ->
         loom_string.fuzzy_search(model.trie, search_text, model.deviation)
     }
@@ -90,84 +127,250 @@ fn update_output(model: Model) -> Model {
 fn view(model: Model) -> Element(Msg) {
   html.div(
     [
+      attribute.style("height", "100dvh"),
+      attribute.style("width", "100vw"),
+      attribute.style("position", "fixed"),
+      attribute.style("top", "0"),
+      attribute.style("left", "0"),
+      attribute.style("overflow", "hidden"),
       attribute.style("display", "flex"),
       attribute.style("flex-direction", "column"),
       attribute.style("align-items", "center"),
-      attribute.style("justify-content", "flex-start"),
-      attribute.style("min-height", "90vh"),
-      attribute.style("padding-top", "5vh"),
-      attribute.style("gap", "20px"),
+      attribute.style("height", "100dvh"),
+      attribute.style("width", "100vw"),
+      attribute.style("background-color", "#ffffff"),
+      attribute.style("padding", "20px"),
+      attribute.style("box-sizing", "border-box"),
       attribute.style("font-family", "sans-serif"),
-      attribute.style("background-color", "#fafafa"),
+      attribute.style("overflow", "hidden"),
+      attribute.style("-webkit-font-smoothing", "antialiased"),
+      attribute.style("transform", "scale(1.25)"),
+      attribute.style("transform-origin", "top center"),
+      attribute.style("width", "80%"),
+      attribute.style("height", "80%"),
+      attribute.style("left", "10%"),
+      attribute.style("position", "fixed"),
+      attribute.style("top", "0"),
     ],
     [
-      html.h1(
-        [attribute.style("margin", "0"), attribute.style("color", "#333")],
-        [html.text("Loom Dictionary")],
+      // Minimal Header - Compact
+      html.header(
+        [
+          attribute.style("text-align", "center"),
+          attribute.style("margin-bottom", "15px"),
+        ],
+        [
+          html.h1(
+            [
+              attribute.style("font-size", "24px"),
+              attribute.style("font-weight", "600"),
+              attribute.style("margin", "0"),
+            ],
+            [html.text("Loom Dictionary")],
+          ),
+        ],
       ),
+
+      // Main Content Card
       html.div(
         [
+          attribute.style("width", "100%"),
+          attribute.style("max-width", "400px"),
           attribute.style("display", "flex"),
-          attribute.style("align-items", "center"),
-          attribute.style("gap", "15px"),
-          attribute.style("padding", "10px"),
-          attribute.style("background", "#fff"),
-          attribute.style("border-radius", "8px"),
-          attribute.style("box-shadow", "0 2px 5px rgba(0,0,0,0.05)"),
+          attribute.style("flex-direction", "column"),
+          attribute.style("gap", "12px"),
+          attribute.style("flex", "1"),
+          attribute.style("min-height", "0"),
         ],
-        [
-          html.button([event.on_click(DecrementDeviation), btn_style()], [
-            html.text("-"),
-          ]),
-          html.div(
-            [
-              attribute.style("font-weight", "bold"),
-              attribute.style("min-width", "100px"),
-              attribute.style("text-align", "center"),
-            ],
-            [html.text("Distance: " <> int.to_string(model.deviation))],
-          ),
-          html.button([event.on_click(IncrementDeviation), btn_style()], [
-            html.text("+"),
-          ]),
-        ],
+        list.flatten([
+          [
+            // Integrated Settings Bar
+            html.div(
+              [
+                attribute.style("display", "flex"),
+                attribute.style("justify-content", "space-between"),
+                attribute.style("padding", "10px 18px"),
+                attribute.style("background", "#F5F5F7"),
+                attribute.style("border-radius", "25px"),
+                attribute.style("box-sizing", "border-box"),
+                attribute.style("box-shadow", "0 2px 5px rgba(0,0,0,0.05)"),
+              ],
+              [
+                html.div(
+                  [
+                    attribute.style("display", "flex"),
+                    attribute.style("align-items", "center"),
+                  ],
+                  [
+                    html.button(
+                      [event.on_click(DecrementDeviation), icon_btn_style()],
+                      [html.text("-")],
+                    ),
+                    html.span(
+                      [
+                        attribute.style("font-size", "15px"),
+                        attribute.style("font-weight", "500"),
+                      ],
+                      [
+                        html.text(
+                          "Distance: " <> int.to_string(model.deviation),
+                        ),
+                      ],
+                    ),
+                    html.button(
+                      [event.on_click(IncrementDeviation), icon_btn_style()],
+                      [html.text("+")],
+                    ),
+                  ],
+                ),
+                html.label(
+                  [
+                    attribute.style("display", "flex"),
+                    attribute.style("align-items", "center"),
+                    attribute.style("gap", "6px"),
+                    attribute.style("padding-right", "8px"),
+                    attribute.style("cursor", "pointer"),
+                    attribute.style("font-size", "15px"),
+                  ],
+                  [
+                    html.input([
+                      attribute.type_("checkbox"),
+                      attribute.style("accent-color", "black"),
+                      event.on_check(ToggleFilters),
+                    ]),
+                    html.text("Wordle"),
+                  ],
+                ),
+              ],
+            ),
+
+            // Main Input
+            html.input([
+              attribute.placeholder("Search patterns..."),
+              attribute.value(model.text),
+              event.on_input(UpdateName),
+              attribute.style("padding", "16px 18px"),
+              attribute.style("background-color", "#F5F5F7"),
+              attribute.style("border", "none"),
+              attribute.style("border-radius", "25px"),
+              attribute.style("font-size", "16px"),
+              attribute.style("outline", "none"),
+              attribute.style("width", "100%"),
+              attribute.style("box-sizing", "border-box"),
+              attribute.style("box-shadow", "0 2px 5px rgba(0,0,0,0.05)"),
+            ]),
+          ],
+
+          wordle_inputs(model),
+
+          [
+            // Scrollable Results Area
+            html.div(
+              [
+                attribute.style("flex", "1"),
+                attribute.style("display", "flex"),
+                attribute.style("flex-direction", "column"),
+                attribute.style("min-height", "0"),
+                attribute.style("border-radius", "25px"),
+                attribute.style("box-sizing", "border-box"),
+                attribute.style("box-shadow", "0 2px 5px rgba(0,0,0,0.05)"),
+              ],
+              [
+                html.pre(
+                  [
+                    attribute.style("background", "#F5F5F7"),
+                    attribute.style("padding", "16px"),
+                    attribute.style("border-radius", "25px"),
+                    attribute.style("flex", "1"),
+                    attribute.style("overflow-y", "auto"),
+                    attribute.style("margin", "0"),
+                    attribute.style(
+                      "font-family",
+                      "ui-monospace, SFMono-Regular, monospace",
+                    ),
+                    attribute.style("font-size", "14px"),
+                    attribute.style("line-height", "1.4"),
+                    attribute.style("color", "#1D1D1F"),
+                  ],
+                  [html.text(model.output)],
+                ),
+              ],
+            ),
+          ],
+        ]),
       ),
-      html.input([
-        attribute.value(model.text),
-        attribute.placeholder("Search for a word..."),
-        event.on_input(UpdateName),
-        attribute.style("padding", "12px 20px"),
-        attribute.style("width", "320px"),
-        attribute.style("font-size", "1rem"),
-        attribute.style("border", "1px solid #ddd"),
-        attribute.style("border-radius", "25px"),
-        attribute.style("outline", "none"),
-        attribute.style("box-shadow", "inset 0 1px 3px rgba(0,0,0,0.05)"),
+
+      // Minimalist Footer - stays at bottom
+      html.footer([attribute.style("padding-top", "12px")], [
+        html.p(
+          [
+            attribute.style("font-size", "11px"),
+            attribute.style("color", "#86868B"),
+            attribute.style("text-align", "center"),
+            attribute.style("margin", "0"),
+          ],
+          [html.text("Filters target patterns. Distance affects fuzzy search.")],
+        ),
       ]),
-      html.pre(
-        [
-          attribute.style("background", "#ffffff"),
-          attribute.style("color", "#444"),
-          attribute.style("padding", "20px"),
-          attribute.style("border-radius", "12px"),
-          attribute.style("width", "350px"),
-          attribute.style("max-height", "60vh"),
-          attribute.style("overflow-y", "auto"),
-          attribute.style("overflow-x", "hidden"),
-          attribute.style("border", "1px solid #eee"),
-          attribute.style("white-space", "pre-wrap"),
-          attribute.style("font-family", "monospace"),
-          attribute.style("box-shadow", "0 4px 6px rgba(0,0,0,0.05)"),
-        ],
-        [html.text(model.output)],
-      ),
     ],
   )
 }
 
-fn btn_style() -> attribute.Attribute(Msg) {
-  attribute.attribute(
-    "style",
-    "width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;",
-  )
+fn wordle_inputs(model: Model) -> List(Element(Msg)) {
+  case model.show_filters {
+    False -> []
+    True -> [
+      html.div(
+        [attribute.style("display", "flex"), attribute.style("gap", "8px")],
+        [
+          html.input([
+            attribute.placeholder("Required"),
+            attribute.value(model.required),
+            event.on_input(UpdateRequiredLetters),
+            attribute.style("padding", "16px 18px"),
+            attribute.style("background-color", "#F5F5F7"),
+            attribute.style("border", "none"),
+            attribute.style("border-radius", "25px"),
+            attribute.style("font-size", "16px"),
+            // 16px prevents iOS zoom on focus
+            attribute.style("outline", "none"),
+            attribute.style("width", "100%"),
+            attribute.style("box-sizing", "border-box"),
+            attribute.style("flex", "1"),
+          ]),
+          html.input([
+            attribute.placeholder("Excluded"),
+            attribute.value(model.excluded),
+            event.on_input(UpdateExcludedLetters),
+            attribute.style("padding", "16px 18px"),
+            attribute.style("background-color", "#F5F5F7"),
+            attribute.style("border", "none"),
+            attribute.style("border-radius", "25px"),
+            attribute.style("font-size", "16px"),
+            // 16px prevents iOS zoom on focus
+            attribute.style("outline", "none"),
+            attribute.style("width", "100%"),
+            attribute.style("box-sizing", "border-box"),
+            attribute.style("flex", "1"),
+          ]),
+        ],
+      ),
+    ]
+  }
+}
+
+fn icon_btn_style() -> attribute.Attribute(Msg) {
+  attribute.styles([
+    #("width", "28px"),
+    #("height", "28px"),
+    #("border", "none"),
+    #("background", "transparent"),
+    #("color", "black"),
+    #("font-size", "20px"),
+    #("font-weight", "400"),
+    #("cursor", "pointer"),
+    #("display", "flex"),
+    #("align-items", "center"),
+    #("justify-content", "center"),
+  ])
 }

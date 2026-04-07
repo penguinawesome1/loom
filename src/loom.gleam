@@ -436,7 +436,7 @@ pub fn at_prefix(
 /// |> insert(["a", "x", "c"], 2)
 /// |> insert(["a", "b", "d"], 3)
 /// |> find_pattern([Some("a"), None, Some("c")])
-/// // -> [["a", "b", "c"], ["a", "x", "c"]]
+/// // -> [#(["a", "b", "c"], 1), #(["a", "x", "c"], 2)]
 /// ```
 /// 
 /// ```gleam
@@ -450,30 +450,73 @@ pub fn find_pattern(
   in trie: Trie(k, v),
   matching pattern: List(Option(k)),
 ) -> List(#(List(k), v)) {
-  find_pattern_loop(trie, [], pattern)
+  find_pattern_where(trie, pattern, fn(_acc, _val) { True })
 }
 
-fn find_pattern_loop(
+/// Returns a list of all keys and values that match the given pattern and satisfy a predicate.
+/// Runs in O(n) time, where 'n' is the total number of nodes in the trie,
+/// though it is significantly faster for patterns with few wildcards.
+/// 
+/// The pattern uses `None` as a wildcard to match any character at that position.
+/// The predicate takes the reconstructed key (as a `List(k)`) and the value at that node.
+/// 
+/// ## Examples
+/// 
+/// ```gleam
+/// new()
+/// |> insert(["a", "r"], 1)
+/// |> insert(["a", "g"], 2)
+/// |> insert(["b", "y"], 3)
+/// |> find_pattern_where([Some("a"), None], fn(_key, val) { val > 1 })
+/// // -> [#(["a", "g"], 2)]
+/// ```
+/// 
+/// ```gleam
+/// new()
+/// |> insert(["a", "b"], 10)
+/// |> insert(["a", "c"], 20)
+/// |> find_pattern_where([Some("a"), None], fn(key, _val) { 
+///   list.contains(key, "b") 
+/// })
+/// // -> [#(["a", "b"], 10)]
+/// ```
+///
+pub fn find_pattern_where(
+  in trie: Trie(k, v),
+  matching pattern: List(Option(k)),
+  where predicate: fn(List(k), v) -> Bool,
+) -> List(#(List(k), v)) {
+  find_pattern_where_loop(trie, [], pattern, predicate)
+}
+
+fn find_pattern_where_loop(
   trie: Trie(k, v),
   key_acc: List(k),
   pattern: List(Option(k)),
+  predicate: fn(List(k), v) -> Bool,
 ) -> List(#(List(k), v)) {
   case pattern {
     [] ->
       case trie.value {
-        Some(value) -> [#(list.reverse(key_acc), value)]
+        Some(value) ->
+          case predicate(key_acc, value) {
+            True -> [#(list.reverse(key_acc), value)]
+            False -> []
+          }
         None -> []
       }
     [first, ..rest] ->
       case first {
         Some(key) ->
           case dict.get(trie.children, key) {
-            Ok(child) -> find_pattern_loop(child, [key, ..key_acc], rest)
+            Ok(child) ->
+              find_pattern_where_loop(child, [key, ..key_acc], rest, predicate)
             Error(Nil) -> []
           }
         None -> {
           use acc, key, child <- dict.fold(trie.children, [])
-          find_pattern_loop(child, [key, ..key_acc], rest) |> list.append(acc)
+          find_pattern_where_loop(child, [key, ..key_acc], rest, predicate)
+          |> list.append(acc)
         }
       }
   }
