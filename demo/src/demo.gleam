@@ -127,30 +127,22 @@ fn update_output(model: Model) -> Model {
 fn view(model: Model) -> Element(Msg) {
   html.div(
     [
-      attribute.style("height", "100dvh"),
-      attribute.style("width", "100vw"),
-      attribute.style("position", "fixed"),
+      attribute.style("position", "absolute"),
       attribute.style("top", "0"),
-      attribute.style("left", "0"),
-      attribute.style("overflow", "hidden"),
+      attribute.style("left", "10%"),
+      attribute.style("width", "80%"),
+      attribute.style("height", "80%"),
       attribute.style("display", "flex"),
       attribute.style("flex-direction", "column"),
       attribute.style("align-items", "center"),
-      attribute.style("height", "100dvh"),
-      attribute.style("width", "100vw"),
       attribute.style("background-color", "#ffffff"),
       attribute.style("padding", "20px"),
       attribute.style("box-sizing", "border-box"),
       attribute.style("font-family", "sans-serif"),
-      attribute.style("overflow", "hidden"),
-      attribute.style("-webkit-font-smoothing", "antialiased"),
       attribute.style("transform", "scale(1.25)"),
       attribute.style("transform-origin", "top center"),
-      attribute.style("width", "80%"),
-      attribute.style("height", "80%"),
-      attribute.style("left", "10%"),
-      attribute.style("position", "fixed"),
-      attribute.style("top", "0"),
+      attribute.style("-webkit-font-smoothing", "antialiased"),
+      attribute.style("overflow", "hidden"),
     ],
     [
       // Minimal Header - Compact
@@ -321,7 +313,7 @@ fn wordle_inputs(model: Model) -> List(Element(Msg)) {
     False -> []
     True -> [
       html.div(
-        [attribute.style("display", "flex"), attribute.style("gap", "8px")],
+        [attribute.style("display", "flex"), attribute.style("gap", "12px")],
         [
           html.input([
             attribute.placeholder("Required"),
