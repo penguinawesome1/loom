@@ -59,5 +59,5 @@ Add this to your `gleam.toml`:
 
 ```toml
 [dependencies]
-loom = { git = "https://github.com/penguinawesome1/loom.git", tag = "v0.1.0" }
+loom = { git = "https://github.com/penguinawesome1/loom.git", tag = "v0.2.0" }
 ```
